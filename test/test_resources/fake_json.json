@@ -1,0 +1,16 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "date": "2011-10-05T14:48:00.000Z",
+            "name": "test",
+            "type": "thermograph"
+        },
+        {
+            "id": 2,
+            "date": "2011-10-05T14:48:00.000Z",
+            "name": "test",
+            "type": "lubrication"
+        }
+    ]
+}
