@@ -11,7 +11,8 @@ class Registries extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<WatchRegistriesBloc>(
       create: (_) => serviceLocator<WatchRegistriesBloc>()
-        ..add(StartWatchRegistriesEvent()),
+        ..add(StartWatchRegistriesEvent())
+        ..add(GetRegistriesEvent()),
       child: const RegistriesBody(),
     );
   }

@@ -53,6 +53,22 @@ class WatchRegistriesBloc
             (registries) => add(ReceiveRegistriesEvent(right(registries))),
           );
         });
+      }
+
+      if (event is ReceiveRegistriesEvent) {
+        event.failureOrRegistries.fold(
+          (failure) => emit(state.copyWith(status: ErrorStatus())),
+          (registries) => emit(
+            state.copyWith(
+              status: DoneStatus(),
+              registries: [...state.registries, ...registries],
+            ),
+          ),
+        );
+      }
+
+      if (event is GetRegistriesEvent) {
+        emit(state.copyWith(status: InProgressStatus()));
 
         final failureOrRegistries = await getRegistriesUsecase(NoParams());
 
@@ -66,18 +82,6 @@ class WatchRegistriesBloc
             state.copyWith(
               registries: registries,
               status: DoneStatus(),
-            ),
-          ),
-        );
-      }
-
-      if (event is ReceiveRegistriesEvent) {
-        event.failureOrRegistries.fold(
-          (failure) => emit(state.copyWith(status: ErrorStatus())),
-          (registries) => emit(
-            state.copyWith(
-              status: DoneStatus(),
-              registries: [...state.registries, ...registries],
             ),
           ),
         );

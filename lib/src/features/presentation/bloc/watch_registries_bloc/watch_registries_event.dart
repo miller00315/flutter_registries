@@ -7,6 +7,8 @@ abstract class WatchRegistriesEvent extends Equatable {
 
 class StartWatchRegistriesEvent extends WatchRegistriesEvent {}
 
+class GetRegistriesEvent extends WatchRegistriesEvent {}
+
 class ReceiveRegistriesEvent extends WatchRegistriesEvent {
   final Either<Failure, List<Registry>> failureOrRegistries;
 

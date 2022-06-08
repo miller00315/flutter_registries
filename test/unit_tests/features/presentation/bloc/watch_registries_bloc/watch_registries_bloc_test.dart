@@ -34,7 +34,7 @@ main() {
     blocTest<WatchRegistriesBloc, WatchRegistriesState>(
       '''GIVEN request a list of [Registry]
     WHEN request success
-    THEN should emit a [ErrorStatu] and a list of [Regsitry]''',
+    THEN should emit a [DoneStatus] and a list of [Regsitry]''',
       build: () => WatchRegistriesBloc(
         startWatchRegistries,
         stopWatchRegistries,
@@ -50,12 +50,6 @@ main() {
           (_) => testStream,
         );
 
-        when(getRegistries(NoParams())).thenAnswer(
-          (_) => Future.value(
-            right(fakeRegistries),
-          ),
-        );
-
         when(stopWatchRegistries(NoParams())).thenAnswer(
           (_) => Future.value(
             right(unit),
@@ -66,67 +60,8 @@ main() {
       expect: () => [
         WatchRegistriesState(registries: const [], status: InProgressStatus()),
         WatchRegistriesState(registries: fakeRegistries, status: DoneStatus()),
-        WatchRegistriesState(
-            registries: [...fakeRegistries, ...fakeRegistries],
-            status: DoneStatus()),
       ],
     );
-
-    blocTest<WatchRegistriesBloc, WatchRegistriesState>(
-        '''GIVEN request a list of [Registry]
-    WHEN request success
-    THEN first should emit a [ErrorStatus] and after a [DoneStatus]''',
-        build: () => WatchRegistriesBloc(
-              startWatchRegistries,
-              stopWatchRegistries,
-              getRegistries,
-            ),
-        setUp: () {
-          final testStream =
-              Stream<Either<Failure, List<Registry>>>.fromIterable(
-                  [right(fakeRegistries)]);
-
-          when(
-            startWatchRegistries(NoParams()),
-          ).thenAnswer(
-            (_) => testStream,
-          );
-
-          when(getRegistries(NoParams())).thenAnswer(
-            (_) => Future.value(
-              left(ServerFailure()),
-            ),
-          );
-
-          when(stopWatchRegistries(NoParams())).thenAnswer(
-            (_) => Future.value(
-              right(unit),
-            ),
-          );
-        },
-        act: (bloc) => bloc.add(StartWatchRegistriesEvent()),
-        expect: () => [
-              WatchRegistriesState(
-                  registries: const [], status: InProgressStatus()),
-              WatchRegistriesState(registries: const [], status: ErrorStatus()),
-              WatchRegistriesState(
-                registries: fakeRegistries,
-                status: DoneStatus(),
-              ),
-            ],
-        verify: (_) {
-          verify(startWatchRegistries(NoParams())).called(1);
-
-          verify(getRegistries(NoParams())).called(1);
-
-          verify(stopWatchRegistries(NoParams())).called(1);
-
-          verifyNoMoreInteractions(startWatchRegistries);
-
-          verifyNoMoreInteractions(getRegistries);
-
-          verifyNoMoreInteractions(stopWatchRegistries);
-        });
 
     blocTest<WatchRegistriesBloc, WatchRegistriesState>(
         '''GIVEN request a list of [Registry]
@@ -148,6 +83,38 @@ main() {
             (_) => testStream,
           );
 
+          when(stopWatchRegistries(NoParams())).thenAnswer(
+            (_) => Future.value(
+              right(unit),
+            ),
+          );
+        },
+        act: (bloc) => bloc.add(StartWatchRegistriesEvent()),
+        expect: () => [
+              WatchRegistriesState(
+                  registries: const [], status: InProgressStatus()),
+              WatchRegistriesState(registries: const [], status: ErrorStatus()),
+            ],
+        verify: (_) {
+          verify(startWatchRegistries(NoParams())).called(1);
+
+          verify(stopWatchRegistries(NoParams())).called(1);
+
+          verifyNoMoreInteractions(startWatchRegistries);
+
+          verifyNoMoreInteractions(stopWatchRegistries);
+        });
+
+    blocTest<WatchRegistriesBloc, WatchRegistriesState>(
+        '''GIVEN request a list of [Registry]
+    WHEN request success
+    THEN first should emit  a [DoneStatus]''',
+        build: () => WatchRegistriesBloc(
+              startWatchRegistries,
+              stopWatchRegistries,
+              getRegistries,
+            ),
+        setUp: () {
           when(getRegistries(NoParams())).thenAnswer(
             (_) => Future.value(
               right(fakeRegistries),
@@ -160,25 +127,57 @@ main() {
             ),
           );
         },
-        act: (bloc) => bloc.add(StartWatchRegistriesEvent()),
+        act: (bloc) => bloc.add(GetRegistriesEvent()),
         expect: () => [
               WatchRegistriesState(
                   registries: const [], status: InProgressStatus()),
               WatchRegistriesState(
                   registries: fakeRegistries, status: DoneStatus()),
-              WatchRegistriesState(
-                  registries: fakeRegistries, status: ErrorStatus()),
             ],
         verify: (_) {
-          verify(startWatchRegistries(NoParams())).called(1);
-
           verify(getRegistries(NoParams())).called(1);
 
           verify(stopWatchRegistries(NoParams())).called(1);
 
           verifyNoMoreInteractions(startWatchRegistries);
 
-          verifyNoMoreInteractions(getRegistries);
+          verifyNoMoreInteractions(stopWatchRegistries);
+        });
+
+    blocTest<WatchRegistriesBloc, WatchRegistriesState>(
+        '''GIVEN request a list of [Registry]
+    WHEN request success
+    THEN first should emit  a [ErrorStatus]''',
+        build: () => WatchRegistriesBloc(
+              startWatchRegistries,
+              stopWatchRegistries,
+              getRegistries,
+            ),
+        setUp: () {
+          when(getRegistries(NoParams())).thenAnswer(
+            (_) => Future.value(
+              left(ServerFailure()),
+            ),
+          );
+
+          when(stopWatchRegistries(NoParams())).thenAnswer(
+            (_) => Future.value(
+              right(unit),
+            ),
+          );
+        },
+        act: (bloc) => bloc.add(GetRegistriesEvent()),
+        expect: () => [
+              WatchRegistriesState(
+                  registries: const [], status: InProgressStatus()),
+              WatchRegistriesState(registries: const [], status: ErrorStatus()),
+            ],
+        verify: (_) {
+          verify(getRegistries(NoParams())).called(1);
+
+          verify(stopWatchRegistries(NoParams())).called(1);
+
+          verifyNoMoreInteractions(startWatchRegistries);
 
           verifyNoMoreInteractions(stopWatchRegistries);
         });
